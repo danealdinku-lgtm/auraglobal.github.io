@@ -372,14 +372,16 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 <p>Tell us about your program and the decision you need to make. We reply within 7 working days.</p>
 <p><b>Email:</b> <a href="mailto:niecplc2026@gmail.com">niecplc2026@gmail.com</a></p><p><b>Phone:</b> <a href="tel:+251912766825">0912766825</a></p><p><b>Office:</b> Addis Ababa, Ethiopia</p>
 </div>
-<form id="contactForm" novalidate>
-<div><label for="n">Name</label><input id="n" required autocomplete="name"><div class="err" data-for="n"></div></div>
-<div><label for="o">Organization</label><input id="o" autocomplete="organization"></div>
-<div><label for="e">Email</label><input id="e" type="email" required autocomplete="email"><div class="err" data-for="e"></div></div>
-<div><label for="s">Service needed</label><select id="s" required></select><div class="err" data-for="s"></div></div>
-<div><label for="m">Message</label><textarea id="m" rows="5" required></textarea><div class="err" data-for="m"></div></div>
-<button class="btn btn-p" type="submit">Send request</button>
+<form id="contactForm" action="https://formspree.io/f/mqppezra" method="POST" novalidate>
+<div><label for="n">Name</label><input id="n" name="name" required autocomplete="name"><div class="err" data-for="n"></div></div>
+<div><label for="o">Organization</label><input id="o" name="organization" autocomplete="organization"></div>
+<div><label for="e">Email</label><input id="e" name="email" type="email" required autocomplete="email"><div class="err" data-for="e"></div></div>
+<div><label for="s">Service needed</label><select id="s" name="service" required></select><div class="err" data-for="s"></div></div>
+<div><label for="m">Message</label><textarea id="m" name="message" rows="5" required></textarea><div class="err" data-for="m"></div></div>
+<input type="hidden" name="_subject" value="Aura Global — consultation request">
+<button class="btn btn-p" type="submit" id="contactSubmit">Send request</button>
 <div class="ok" hidden role="status" id="sent">Thank you. Your request has been recorded and our team will be in touch.</div>
+<div class="err" id="contactSendErr" role="alert"></div>
 </form>
 </div>
 </section>
@@ -533,7 +535,20 @@ $$('[data-n]').forEach(n=>io.observe(n));
 /* forms */
 const bad=(id,m)=>{$(`[data-for=${id}]`).textContent=m||'';return !!m};
 function check(ids){let ok=true;ids.forEach(id=>{const el=$('#'+id);let m='';if(el.required&&!el.value.trim())m='This field is required.';else if(el.type==='email'&&el.value&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value))m='Enter a valid email address, like name@example.org.';if(bad(id,m))ok=false});return ok}
-$('#contactForm').addEventListener('submit',e=>{e.preventDefault();if(check(['n','e','s','m'])){$('#sent').hidden=false;e.target.reset()}else $('#contactForm [data-for]:not(:empty)').previousElementSibling.focus()});
+$('#contactForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const errEl=$('#contactSendErr');if(errEl)errEl.textContent='';
+  $('#sent').hidden=true;
+  if(!check(['n','e','s','m'])){const bad=$('#contactForm [data-for]:not(:empty)');if(bad)bad.previousElementSibling.focus();return}
+  const btn=$('#contactSubmit');const prev=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='Sending…'}
+  try{
+    const res=await fetch(e.target.action,{method:'POST',body:new FormData(e.target),headers:{'Accept':'application/json'}});
+    if(res.ok){$('#sent').hidden=false;e.target.reset()}
+    else{const data=await res.json().catch(()=>({}));if(errEl)errEl.textContent=(data&&data.errors&&data.errors.map(x=>x.message).join(' '))||'Could not send. Please email niecplc2026@gmail.com or try again.';}
+  }catch(_){if(errEl)errEl.textContent='Network error. Please email niecplc2026@gmail.com or try again.';}
+  finally{if(btn){btn.disabled=false;btn.textContent=prev||'Send request'}}
+});
 $('#cv').addEventListener('submit',e=>{e.preventDefault();if(check(['cn','ce','cp','cf'])){$('#cv .ok').hidden=false;e.target.reset()}});
 $('#news').addEventListener('submit',e=>{e.preventDefault();const v=$('#ne').value,m=$('#newsMsg'),ok=/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);m.textContent=ok?'Subscribed. Thank you.':'Enter a valid email address.';m.style.color=ok?'var(--gold)':'#FFB4C2';if(ok)e.target.reset()});
 /* nav state, top button, language, cookies */
