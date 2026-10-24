@@ -160,6 +160,36 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 .cookie[hidden]{display:none}.cookie .btn{padding:.5rem 1rem;margin-top:.4rem}
 [dir=rtl] .panel li{padding-left:0;padding-right:1.4rem}[dir=rtl] .panel li::before{left:auto;right:0}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* insight topics */
+.insight-toolbar{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;margin-top:1.6rem}
+.insight-filters{display:flex;gap:.5rem;flex-wrap:wrap}
+.insight-hint{margin:0;color:var(--muted);font-size:.95rem}
+.insight-item{display:block;padding:0;background:transparent;border:none;margin:0}
+.insight-item[hidden]{display:none}
+.insight-topic{all:unset;display:grid;grid-template-columns:1fr auto;gap:.35rem 1rem;width:100%;cursor:pointer;background:var(--card);border:1px solid transparent;border-left:3px solid var(--gold);padding:1.1rem 1.2rem;border-radius:8px;box-sizing:border-box;transition:border-color .2s,box-shadow .25s,transform .2s,background .2s}
+.insight-topic:hover{background:rgba(18,55,111,.95);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.insight-topic:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.insight-topic[aria-expanded=true]{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 12px 28px rgba(122,31,61,.35);background:var(--card)}
+.insight-badge{grid-column:1;display:inline-block;width:fit-content;font-size:.75rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:#fff;background:var(--burg);border-radius:4px;padding:.15rem .5rem}
+.insight-title{font-weight:600;color:var(--text);grid-column:1;font-size:1.05rem;line-height:1.35}
+.insight-meta{font-size:.9rem;color:var(--muted);grid-column:1}
+.insight-chevron{grid-column:2;grid-row:1/span 3;align-self:center;font:700 1.35rem var(--sans);color:var(--gold);width:2rem;height:2rem;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:transform .25s,background .2s,color .2s}
+.insight-topic[aria-expanded=true] .insight-chevron{background:var(--gold);color:var(--bg2);transform:rotate(45deg)}
+.insight-detail{margin-top:.75rem;padding:clamp(1.2rem,3vw,2rem);border-top:3px solid var(--gold);animation:insightIn .35s ease}
+.insight-detail[hidden]{display:none;animation:none}
+@keyframes insightIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.insight-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.1rem}
+.insight-actions .btn{padding:.45rem .9rem;font-size:.9rem}
+.insight-takeaways{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid var(--line)}
+.insight-takeaways-label{margin:0;font-size:.85rem;color:var(--muted);font-weight:600}
+.insight-jump{cursor:pointer;background:transparent;font:inherit}
+.insight-jump:hover,.insight-jump:focus-visible{background:rgba(212,175,55,.18);outline:none}
+.insight-body p[id]{scroll-margin-top:calc(90px + env(safe-area-inset-top,0px));transition:background .4s}
+.insight-body p.flash{background:rgba(212,175,55,.18);border-radius:4px}
+.insight-toast{position:fixed;left:50%;bottom:calc(5rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(12px);background:var(--gold);color:var(--bg2);font-weight:600;padding:.6rem 1.1rem;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:80;font-size:.92rem}
+.insight-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(prefers-reduced-motion:reduce){.insight-detail{animation:none}.insight-chevron{transition:none}}
 </style>
 </head>
 <body>
@@ -266,21 +296,55 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 <section class="alt" id="insights">
 <div class="wrap">
 <div class="res-top">
-<div><h2>Insights and resources</h2><p class="lead" style="margin:0">Policy briefs, white papers, and journal publications.</p></div>
+<div><h2>Insights and resources</h2><p class="lead" style="margin:0">Policy briefs, white papers, and journal publications. Filter topics, open a document, jump to sections, copy a link, or print.</p></div>
 </div>
-<article class="card" style="margin-top:1.6rem"><h3>Humanitarian funding: a developing-country perspective</h3>
-<p><b>The challenge.</b> For countries living with protracted crises, the retreat of humanitarian funding is a daily reality. International humanitarian funding fell 29.7% from 2023 to 2025, from US$47.4 billion to US$33.3 billion, while UN appeals were only 35% funded. At the end of 2025, 239 million people needed assistance. Almost all appeal funding (95%) goes to crises that have had a UN appeal for five years or more, so the countries least able to absorb a shock are the most exposed to the cuts.</p>
-<p><b>No single fix.</b> The gap will not close through one donor or one reform. The evidence points to several responses working together:</p>
+<div class="insight-toolbar">
+<div class="insight-filters" role="group" aria-label="Filter insights">
+<button type="button" class="tab insight-filter" data-ifilter="all" aria-pressed="true">All</button>
+<button type="button" class="tab insight-filter" data-ifilter="analysis" aria-pressed="false">Analysis</button>
+<button type="button" class="tab insight-filter" data-ifilter="policy" aria-pressed="false">Policy</button>
+</div>
+<p class="insight-hint" id="insightHint">Select a topic to open the shared document.</p>
+</div>
+<ul class="reslist" id="reslist" style="margin-top:1rem">
+<li class="insight-item" data-itag="analysis policy">
+<button type="button" class="insight-topic" aria-expanded="false" aria-controls="doc-funding" id="topic-funding">
+<span class="insight-badge">Analysis</span>
+<span class="insight-title">Humanitarian funding: a developing-country perspective</span>
+<span class="insight-meta">Shared document · 2026 · ~8 min read</span>
+<span class="insight-chevron" aria-hidden="true">+</span>
+</button>
+<article class="card insight-detail" id="doc-funding" hidden>
+<div class="insight-actions">
+<button type="button" class="btn btn-s insight-act" data-act="copy" data-id="doc-funding">Copy link</button>
+<button type="button" class="btn btn-s insight-act" data-act="print" data-id="doc-funding">Print</button>
+<a class="btn btn-s" href="https://humanitarianaction.info/document/global-humanitarian-overview-2026" target="_blank" rel="noopener">Source document</a>
+</div>
+<div class="insight-takeaways" role="navigation" aria-label="Key takeaways">
+<p class="insight-takeaways-label">Jump to</p>
+<button type="button" class="chip insight-jump" data-target="take-challenge">The challenge</button>
+<button type="button" class="chip insight-jump" data-target="take-fix">Responses</button>
+<button type="button" class="chip insight-jump" data-target="take-local">Localisation</button>
+<button type="button" class="chip insight-jump" data-target="take-evidence">Evidence</button>
+</div>
+<div class="insight-body" id="insight-body-funding">
+<p id="take-challenge"><b>The challenge.</b> For countries living with protracted crises, the retreat of humanitarian funding is a daily reality. International humanitarian funding fell 29.7% from 2023 to 2025, from US$47.4 billion to US$33.3 billion, while UN appeals were only 35% funded. At the end of 2025, 239 million people needed assistance. Almost all appeal funding (95%) goes to crises that have had a UN appeal for five years or more, so the countries least able to absorb a shock are the most exposed to the cuts.</p>
+<p id="take-fix"><b>No single fix.</b> The gap will not close through one donor or one reform. The evidence points to several responses working together:</p>
 <ul style="color:var(--muted);padding-left:1.2rem">
 <li><b>Broader funding sources:</b> Gulf donors increased their contributions in 2025, while the US and Germany accounted for 88% of the fall. Countries and agencies that build relationships with a wider group of funders, including regional and private partners, are less exposed to any one donor’s decisions.</li>
 <li><b>Efficient, flexible aid:</b> cash and voucher assistance fell in absolute terms but rose as a share of total funding, proving more resilient to cuts. Spending that people can use according to their own priorities makes limited funds go further.</li>
 <li><b>Acting early:</b> anticipatory action reached 1% of humanitarian assistance for the first time, but funding per activation has more than halved in two years. Responding before a forecast flood, drought or outbreak strikes costs less than responding afterwards, so it deserves far more investment.</li>
 </ul>
-<p><b>Strengthening localisation.</b> This is the clearest gap between promise and practice. The commitment to channel 25% of funding to local and national actors has not been met and is going backwards: they received 8.7% in 2025, and the amount fell from US$3.5 billion to US$2.5 billion. Early 2026 data shows only 7% of pooled funds allocated to national NGOs, compared with almost 46% in 2025. Yet local organisations are close to communities and can deliver more efficiently. The UN reports that in Sudan, local actors can deliver about 12% more efficiently. Localisation is therefore not charity. It is how scarce resources are used best.</p>
-<p><b>Evidence is the foundation.</b> Each of these responses depends on data that is accurate and traceable. Data on funding passed down to local and national actors remains inconsistent and incomplete. Evaluations found that vulnerabilities such as age or disability were sometimes missed early in crises, and outdated demographic data underestimated who qualified for help. Only 55% of aid recipients said they had been consulted on their needs. Credible needs data, transparent funding records and cost-effectiveness studies let governments and local organisations make the case for resources, show where each dollar saves the most lives, and target cuts so they do the least harm.</p>
+<p id="take-local"><b>Strengthening localisation.</b> This is the clearest gap between promise and practice. The commitment to channel 25% of funding to local and national actors has not been met and is going backwards: they received 8.7% in 2025, and the amount fell from US$3.5 billion to US$2.5 billion. Early 2026 data shows only 7% of pooled funds allocated to national NGOs, compared with almost 46% in 2025. Yet local organisations are close to communities and can deliver more efficiently. The UN reports that in Sudan, local actors can deliver about 12% more efficiently. Localisation is therefore not charity. It is how scarce resources are used best.</p>
+<p id="take-evidence"><b>Evidence is the foundation.</b> Each of these responses depends on data that is accurate and traceable. Data on funding passed down to local and national actors remains inconsistent and incomplete. Evaluations found that vulnerabilities such as age or disability were sometimes missed early in crises, and outdated demographic data underestimated who qualified for help. Only 55% of aid recipients said they had been consulted on their needs. Credible needs data, transparent funding records and cost-effectiveness studies let governments and local organisations make the case for resources, show where each dollar saves the most lives, and target cuts so they do the least harm.</p>
 <p style="font-size:.9rem;color:var(--muted)"><b>Note.</b> The sources document the cuts and the gaps. They do not prove that better evidence or localisation alone would restore funding, so the points above are conclusions drawn from the evidence rather than findings of the reports.</p>
-<p style="font-size:.9rem;color:var(--muted)">Sources: ALNAP, <a href="https://alnap.org/help-library/resources/global-humanitarian-assistance-gha-report-2026/summary/" target="_blank" rel="noopener">Global Humanitarian Assistance Report 2026</a> and its <a href="https://alnap.org/help-library/resources/global-humanitarian-assistance-gha-report-2026/humanitarian-reform-and-delivery/" target="_blank" rel="noopener">chapter on reform and delivery</a>; ALNAP, <a href="https://alnap.org/help-library/resources/sohs-2026/chapter-1-prioritisation-under-pressure/1-2-assisting-people-most-in-need/" target="_blank" rel="noopener">State of the Humanitarian System 2026, Chapter 1.2</a>; UN OCHA, <a href="https://humanitarianaction.info/document/global-humanitarian-overview-2026" target="_blank" rel="noopener">Global Humanitarian Overview 2026</a> and its <a href="https://humanitarianaction.info/article/2026-global-humanitarian-overview-collective-push-protect-millions-lives" target="_blank" rel="noopener">overview article</a>.</p></article>
-<ul class="reslist" id="reslist"></ul>
+<p style="font-size:.9rem;color:var(--muted)">Sources: ALNAP, <a href="https://alnap.org/help-library/resources/global-humanitarian-assistance-gha-report-2026/summary/" target="_blank" rel="noopener">Global Humanitarian Assistance Report 2026</a> and its <a href="https://alnap.org/help-library/resources/global-humanitarian-assistance-gha-report-2026/humanitarian-reform-and-delivery/" target="_blank" rel="noopener">chapter on reform and delivery</a>; ALNAP, <a href="https://alnap.org/help-library/resources/sohs-2026/chapter-1-prioritisation-under-pressure/1-2-assisting-people-most-in-need/" target="_blank" rel="noopener">State of the Humanitarian System 2026, Chapter 1.2</a>; UN OCHA, <a href="https://humanitarianaction.info/document/global-humanitarian-overview-2026" target="_blank" rel="noopener">Global Humanitarian Overview 2026</a> and its <a href="https://humanitarianaction.info/article/2026-global-humanitarian-overview-collective-push-protect-millions-lives" target="_blank" rel="noopener">overview article</a>.</p>
+</div>
+</article>
+</li>
+</ul>
+
+
 </div>
 </section>
 
@@ -396,6 +460,73 @@ $('#filters').addEventListener('click',e=>{const b=e.target.closest('[data-f]');
 $('#filters .tab').setAttribute('aria-selected',true);
 /* resources */
 const R=[];
+
+/* insight document expand */
+(function(){
+  const hint=$('#insightHint');
+  const toast=(msg)=>{let t=$('#insightToast');if(!t){t=document.createElement('div');t.id='insightToast';t.className='insight-toast';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),1800)};
+  const closeAll=()=>{$$('.insight-topic').forEach(b=>{b.setAttribute('aria-expanded','false');const p=document.getElementById(b.getAttribute('aria-controls'));if(p)p.hidden=true;const ch=b.querySelector('.insight-chevron');if(ch)ch.textContent='+'})};
+  $$('.insight-topic').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const open=btn.getAttribute('aria-expanded')==='true';
+      const panel=document.getElementById(btn.getAttribute('aria-controls'));
+      closeAll();
+      if(!open){
+        btn.setAttribute('aria-expanded','true');
+        if(panel){panel.hidden=false;requestAnimationFrame(()=>panel.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'nearest'}))}
+        const ch=btn.querySelector('.insight-chevron');if(ch)ch.textContent='+';
+        if(hint)hint.textContent='Document open — use Jump to, Copy link, or Print.';
+      }else if(hint)hint.textContent='Select a topic to open the shared document.';
+    });
+  });
+  $$('.insight-filter').forEach(f=>{
+    f.addEventListener('click',()=>{
+      const tag=f.dataset.ifilter;
+      $$('.insight-filter').forEach(x=>{const on=x===f;x.setAttribute('aria-pressed',on);x.setAttribute('aria-selected',on)});
+      $$('.insight-item').forEach(item=>{
+        const tags=(item.dataset.itag||'').split(/\s+/);
+        item.hidden=tag!=='all'&&!tags.includes(tag);
+      });
+      closeAll();
+      if(hint)hint.textContent=tag==='all'?'Select a topic to open the shared document.':'Filtered — click a topic to read.';
+    });
+  });
+  document.addEventListener('click',e=>{
+    const jump=e.target.closest('.insight-jump');
+    if(jump){
+      const el=document.getElementById(jump.dataset.target);
+      if(el){el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1200)}
+      return;
+    }
+    const act=e.target.closest('.insight-act');
+    if(!act)return;
+    const id=act.dataset.id;
+    if(act.dataset.act==='copy'){
+      const url=location.origin+location.pathname+'#insights';
+      const done=()=>toast('Link copied');
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done).catch(()=>{toast('Copy not available')});
+      else toast('Copy not available');
+    }else if(act.dataset.act==='print'){
+      const panel=document.getElementById(id);
+      if(!panel)return;
+      const w=window.open('','_blank');
+      if(!w){toast('Allow pop-ups to print');return}
+      w.document.write('<html><head><title>Aura Global Consultancy — Insight</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem;color:#111}h1,h2,h3{font-family:Georgia,serif}a{color:#0A2A5E}</style></head><body>');
+      w.document.write('<h1>Humanitarian funding: a developing-country perspective</h1>');
+      const body=panel.querySelector('.insight-body');
+      w.document.write(body?body.innerHTML:panel.innerHTML);
+      w.document.write('</body></html>');
+      w.document.close();
+      w.focus();
+      setTimeout(()=>{w.print()},300);
+    }
+  });
+  // deep-link: open if hash is #insights and first topic
+  if(location.hash==='#insights'||location.hash==='#doc-funding'){
+    const btn=$('#topic-funding');
+    if(btn)btn.click();
+  }
+})();
 /* counters */
 const io=new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting)return;io.unobserve(en.target);const t=+en.target.dataset.n,s=performance.now();(function f(n){const k=Math.min((n-s)/1400,1);en.target.textContent=Math.round(t*(1-Math.pow(1-k,3)))+(k==1?'+':'');if(k<1)requestAnimationFrame(f)})(s)}),{threshold:.6});
 $$('[data-n]').forEach(n=>io.observe(n));
